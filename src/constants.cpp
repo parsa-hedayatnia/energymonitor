@@ -1,4 +1,18 @@
 #include "constants.hpp"
+#include "WiFi.h"
+
+String GetLast6Mac(void)
+{
+  String BUFF = WiFi.macAddress();
+  String OutPutData;
+
+  for (int i = 9; i <= 16; i++)
+  {
+    OutPutData += BUFF[i];
+  }
+
+  return OutPutData;
+}
 
 String OpModeNames[] = {
     "Operation Mode 1",
@@ -9,7 +23,8 @@ String OpModeNames[] = {
 
 namespace Constants
 {
-  const char *StationSSID = "ConfigMePlease";
+  const char *ConfigStationSSID = "ConfigMePlease";
+  const char *StationSSID = "SEM";
   const char *StationPassword = "12345678";
   const char *ConfigPoralAddress = "sem";
   const char *addrSelectedBoard = "AdSelectedBoard";

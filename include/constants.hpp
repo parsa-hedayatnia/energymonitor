@@ -15,6 +15,7 @@ extern String OpModeNames[];
 
 namespace Constants
 {
+  extern const char *ConfigStationSSID;
   extern const char *StationSSID;
   extern const char *StationPassword;
   extern const char *ConfigPoralAddress;

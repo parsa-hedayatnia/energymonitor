@@ -30,10 +30,10 @@ bool IRAM_ATTR SM_TimerInterrupt(void *)
 
 void onData(AsyncWebServerRequest *request)
 {
-  Serial.println("req");
   DynamicJsonDocument doc(1024);
   doc["mode"] = "mode1";
   doc["energy"] = getEnergy();
+  doc["mac"] = WiFi.macAddress();
 
   AsyncResponseStream *response = request->beginResponseStream("application/json");
   serializeJson(doc, *response);

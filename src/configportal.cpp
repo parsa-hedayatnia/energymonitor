@@ -41,7 +41,7 @@ ConfigPoralParameters startConfigPoral()
 
   Serial.println("Setting up access point");
   WiFi.mode(WIFI_AP);
-  WiFi.softAP(Constants::StationSSID, Constants::StationPassword);
+  WiFi.softAP(Constants::ConfigStationSSID, Constants::StationPassword);
 
   if (MDNS.begin(Constants::ConfigPoralAddress))
   {
