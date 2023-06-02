@@ -1,6 +1,7 @@
 #include "mode1.hpp"
 #include "calculate.hpp"
 #include "constants.hpp"
+#include "server.hpp"
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <ESP32TimerInterrupt.hpp>
@@ -67,12 +68,11 @@ void Mode1_Init(void)
   WiFi.mode(WIFI_AP);
   WiFi.softAP(Constants::StationSSID, Constants::StationPassword);
 
-  // if (MDNS.begin(Constants::ConfigPoralAddress))
-  // {
-  //   Serial.println("MDNS responder started");
-  // }
+  if (MDNS.begin(Constants::ConfigPoralAddress))
+  {
+    Serial.println("MDNS responder started");
+  }
 
-  AsyncWebServer server(80);
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(200, "text/plain", "hello"); });
   server.on("/data", HTTP_GET, onData);

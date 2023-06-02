@@ -1,6 +1,7 @@
 #include "configportal.hpp"
 #include "constants.hpp"
 #include "pages.hpp"
+#include "server.hpp"
 #include <ESPAsyncWebServer.h>
 #include <ESPmDNS.h>
 #include <WiFi.h>
@@ -47,7 +48,6 @@ ConfigPoralParameters startConfigPoral()
     Serial.println("MDNS responder started");
   }
 
-  AsyncWebServer server(80);
   server.on("/", HTTP_GET, onRoot);
   server.on("/settings", HTTP_GET, onSetSettings);
   server.onNotFound([](AsyncWebServerRequest *request)
@@ -60,7 +60,7 @@ ConfigPoralParameters startConfigPoral()
     delay(1000);
   }
 
-  server.end();
+  server.reset();
 
   return parameters;
 }

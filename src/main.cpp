@@ -28,7 +28,7 @@ void setup()
   Serial.println("Done config");
   Serial.println("Operation Mode: " + OpModeNames[params.operationMode]);
   NVS.putInt(Constants::addrSelectedBoard, params.operationMode);
-  Mode1_Init();
+  ESP.restart();
 }
 
 void loop()
