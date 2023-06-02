@@ -1,5 +1,7 @@
+#include "calculate.hpp"
 #include "configportal.hpp"
 #include "constants.hpp"
+#include "mode1.hpp"
 #include <Arduino.h>
 #include <Preferences.h>
 
@@ -12,11 +14,13 @@ void setup()
   while (!Serial)
     ;
   NVS.begin("SM1001", false);
+  // NVS.clear();
 
   if (NVS.isKey(Constants::addrSelectedBoard))
   {
     selectedMode = (OpMode)NVS.getInt(Constants::addrSelectedBoard, 0);
     Serial.println(OpModeNames[selectedMode] + " Was Selected.");
+    Mode1_Init();
     return;
   }
 
@@ -24,6 +28,20 @@ void setup()
   Serial.println("Done config");
   Serial.println("Operation Mode: " + OpModeNames[params.operationMode]);
   NVS.putInt(Constants::addrSelectedBoard, params.operationMode);
+  Mode1_Init();
 }
 
-void loop() {}
+void loop()
+{
+  switch (selectedMode)
+  {
+  case MODE1:
+    delay(5000);
+    Serial.println("[A]: Start Calculating.");
+    calculateANDwritenergy();
+    break;
+
+  default:
+    break;
+  }
+}

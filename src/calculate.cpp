@@ -1,5 +1,8 @@
-#include "calculate.h"
-#include "mode1.h"
+#include "calculate.hpp"
+#include "complex.hpp"
+#include "constants.hpp"
+
+boolean CalculateFlag = false;
 
 double power = 0;
 double voltage = 0;
@@ -36,16 +39,15 @@ double PF = 0;
 double THD_voltage = 0;
 double THD_current = 0;
 
-float Current_Scale_FFT = 102.0; //used for assigning the value of current_scale_fft and writing it to flash
-float Voltage_Scale_FFT = 232.5; //used for assigning the value of voltage_scale_fft and writing it to flash
+float Current_Scale_FFT = 102.0; // used for assigning the value of current_scale_fft and writing it to flash
+float Voltage_Scale_FFT = 232.5; // used for assigning the value of voltage_scale_fft and writing it to flash
 
-
-
+int SM_SendDataPeriod = 5;
 
 int dc_voltage = 1892;
 int dc_current = 1635;
 
-void resetParameters(void) 
+void resetParameters(void)
 {
   xp = 0;
   xq = 0;
@@ -53,7 +55,7 @@ void resetParameters(void)
   XI = 0;
   hV = 0;
   hI = 0;
-  for (int i = 1; i <= K; i++) 
+  for (int i = 1; i <= K; i++)
   {
     xv[i] = Complex(0.0, 0.0);
     xi[i] = Complex(0.0, 0.0);
@@ -80,58 +82,64 @@ void calculate(int Time, int phase, int inPinVoltage, int inPinCurrent)
   uint32_t startTime = millis();
   int No = 0;
   int volt, current_fft, voltage_fft;
-  while ( (millis() - startTime) < Time) {
+  while ((millis() - startTime) < Time)
+  {
 
-    volt = analogRead(IN_PIN_VOLTAGE);
+    volt = analogRead(Constants::inPinVoltage);
     voltage_fft = volt - dc_voltage;
-    v[No] = Voltage_Scale_FFT* ((voltage_fft * (3.3)) / 4095);
-    current_fft = analogRead(IN_PIN_CURRENT);
+    v[No] = Voltage_Scale_FFT * ((voltage_fft * (3.3)) / 4095);
+    current_fft = analogRead(Constants::inPinCurrent);
     current_fft = current_fft - dc_current;
     i[No] = Current_Scale_FFT * ((current_fft * (3.3)) / 4095);
     No++;
   }
 
   No--;
-  for (int h = 1; h <= K; h++) {
-    for (int k = 0; k < No ; k++) {
+  for (int h = 1; h <= K; h++)
+  {
+    for (int k = 0; k < No; k++)
+    {
       //    for (int k = 1; k < 850; k++) {
-      xv[h] += Complex(v[k], 0.0) * (Complex(cos(2 * PI * h * k / No), 0.0)    + j * Complex(sin(2 * PI * h * k / No), 0.0));
+      xv[h] += Complex(v[k], 0.0) * (Complex(cos(2 * PI * h * k / No), 0.0) + j * Complex(sin(2 * PI * h * k / No), 0.0));
       xi[h] += Complex(i[k], 0.0) * (Complex(cos(2 * PI * h * k / No), 0.0) + j * Complex(sin(2 * PI * h * k / No), 0.0));
     }
   }
 
-
-  for (int i = 1; i <= K; i++) {
+  for (int i = 1; i <= K; i++)
+  {
     tv[i] = atan(xv[i].imag() / xv[i].real());
     ti[i] = atan(xi[i].imag() / xi[i].real());
   }
 
-  for (int i = 1; i <= K; i++) {
+  for (int i = 1; i <= K; i++)
+  {
     abs_xv[i] = (2 * sqrt(xv[i].real() * xv[i].real() + xv[i].imag() * xv[i].imag())) / No;
     abs_xi[i] = (2 * sqrt(xi[i].real() * xi[i].real() + xi[i].imag() * xi[i].imag())) / No;
   }
 
-  for (int h = 1; h <= K; h++) {
+  for (int h = 1; h <= K; h++)
+  {
     p[h] = 0.5 * abs_xv[h] * abs_xi[h] * cos(tv[h] - ti[h]);
     xp += p[h];
     q[h] = 0.5 * abs_xv[h] * abs_xi[h] * sin(tv[h] - ti[h]);
     xq += q[h];
     XV = (abs_xv[h] / sqrt(2)) * (abs_xv[h] / sqrt(2)) + XV;
-    XI =  (abs_xi[h] / sqrt(2)) * (abs_xi[h] / sqrt(2)) + XI;
+    XI = (abs_xi[h] / sqrt(2)) * (abs_xi[h] / sqrt(2)) + XI;
   }
-  for (int h = 2; h <= K; h++) {
+  for (int h = 2; h <= K; h++)
+  {
     hV = abs_xv[h] * abs_xv[h] + hV;
     hI = abs_xi[h] * abs_xi[h] + hI;
   }
 
   Vrms_fft = sqrt(XV);
   Irms_fft = sqrt(XI);
-  S  = Vrms_fft * Irms_fft;
+  S = Vrms_fft * Irms_fft;
 
-  P  = xp;
+  P = xp;
 
-  Q  = xq;
-  D  = sqrt(S * S - P * P - Q * Q);
+  Q = xq;
+  D = sqrt(S * S - P * P - Q * Q);
   PF_fft = P / S;
   THDv = sqrt(hV) / (abs_xv[1]);
   THDi = sqrt(hI) / (abs_xi[1]);
@@ -139,22 +147,24 @@ void calculate(int Time, int phase, int inPinVoltage, int inPinCurrent)
   /////////////////////////////////CONFIGUING WITH FLUK/////////////////////////////////
   THDv = THDv / 2;
   THDi = THDi * 3 / 4;
-  Q  = xq / 10;
-  
+  Q = xq / 10;
+
   THD_voltage = THDv;
   THD_current = THDi;
   voltage = Vrms_fft;
   current = Irms_fft;
-  PF =   PF_fft;                         // Must be corrected
-  if (PF < 0 )PF = -PF;
-  if (P < 0 )P = -P;
+  PF = PF_fft; // Must be corrected
+  if (PF < 0)
+    PF = -PF;
+  if (P < 0)
+    P = -P;
   power = P;
 }
 
-void ConfigSensors(int no) 
+void ConfigSensors(int no)
 {
-  int i; 
-  
+  int i;
+
   for (i = 0; i < no; i++)
     CalculateVI();
 }
@@ -162,17 +172,18 @@ void ConfigSensors(int no)
 void CalculateVI()
 {
   resetParameters();
-  calculate(20, 0, IN_PIN_VOLTAGE, IN_PIN_CURRENT);
+  calculate(20, 0, Constants::inPinVoltage, Constants::inPinCurrent);
 }
 
+// double sum = 0;
 void SP_CalculateEnergy()
 {
-  double sum = 0;
 
-  energy = (((SM_SendDataPeriod) * power * 0.001) / 3600); //Wh{
-  sum = sum + energy;
+  energy += (((SM_SendDataPeriod)*power * 0.001) / 3600); // Wh{
+  // sum = sum + energy;
 
-  if (sum < 0)  sum = 0;
+  // if (sum < 0)
+    // sum = 0;
 }
 
 void calculateANDwritenergy()
@@ -181,24 +192,28 @@ void calculateANDwritenergy()
   SP_CalculateEnergy();
 }
 
+double getEnergy()
+{
+  return energy;
+}
+double getVoltage()
+{
+  return voltage;
+}
+double getCurrent()
+{
+  return current;
+}
+double getThdCurrent()
+{
+  return THD_current;
+}
+double getThdVoltage()
+{
+  return THD_voltage;
+}
 
-
-double getEnergy(){
-return energy;
-}
-double getVoltage(){
-    return voltage;
-}
-double getCurrent(){
-    return current;
-}
-double getThdCurrent(){
-    return THD_current;
-}
-double getThdVoltage(){
-    return THD_voltage;
-}
-
-double getPF(){
-    return PF;
+double getPF()
+{
+  return PF;
 }

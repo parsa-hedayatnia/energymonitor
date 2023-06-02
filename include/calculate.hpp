@@ -6,10 +6,8 @@
 #endif
 
 #include <Arduino.h>
-#include "ccomplex.h"
-#include "pins.h"
 
-
+extern boolean CalculateFlag;
 
 void SP_SHA256_key(void);
 void SP_makeJSONdata(void);
@@ -22,9 +20,6 @@ void SaveMode1Parameters(int Type);
 void GetMode1Parameters(int Type);
 void SP_login(void);
 void SP_data(void);
-
-
-
 
 
 double getEnergy();
