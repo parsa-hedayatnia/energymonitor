@@ -1,0 +1,6 @@
+#ifndef __ENERGYMONITOR_MODE1_HPP
+#define __ENERGYMONITOR_MODE1_HPP
+
+
+
+#endif
