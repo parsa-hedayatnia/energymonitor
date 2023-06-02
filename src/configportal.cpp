@@ -60,5 +60,7 @@ ConfigPoralParameters startConfigPoral()
     delay(1000);
   }
 
+  server.end();
+
   return parameters;
 }
