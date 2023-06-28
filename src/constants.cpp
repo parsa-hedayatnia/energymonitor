@@ -23,13 +23,20 @@ String OpModeNames[] = {
 
 namespace Constants
 {
+  // Pins
+  const int CurrentPin = 35;
+  const int VoltagePin = 34;
+  const int LedPin = 14;
+  const int WifiButtonPin = 0;
+
+  // NVS Addresses
+  const char *WifiSSIDAddress = "WifiSSID";
+  const char *WifiPasswordAddress = "WifiPassword";
+  const char *SelectedBoardAddress = "SelectedBoard";
+  const char *IsAPAddress = "IsAP";
+
+  // Config Portal
   const char *ConfigStationSSID = "ConfigMePlease";
-  const char *StationSSID = "SEM";
-  const char *StationPassword = "12345678";
-  const char *ConfigPoralAddress = "sem";
-  const char *addrSelectedBoard = "AdSelectedBoard";
-  const int inPinCurrent = 35;
-  const int inPinVoltage = 34;
-  const int PIN_LED = 14;
-  const int SM_TRIGGER_PIN = 0;
+  const char *ConfigStationPassword = "12345678";
+  const char *ConfigPortalAddress = "sem";
 }

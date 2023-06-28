@@ -1,10 +1,16 @@
 #ifndef __ENERGYMONITOR_CONFIG_PORTAL_HPP
 #define __ENERGYMONITOR_CONFIG_PORTAL_HPP
 
-struct ConfigPoralParameters {
+#include <WString.h>
+
+struct ConfigPortalParameters
+{
   int operationMode;
+  bool isAP;
+  String ssid;
+  String password;
 };
 
-ConfigPoralParameters startConfigPoral();
+ConfigPortalParameters startConfigPoral();
 
 #endif

@@ -14,17 +14,10 @@ extern Preferences NVS;
 
 void onData(AsyncWebServerRequest *request)
 {
-  DynamicJsonDocument doc(1024);
-  doc["mode"] = "mode1";
-  doc["energy"] = getEnergy();
-  doc["mac"] = WiFi.macAddress();
-
-  AsyncResponseStream *response = request->beginResponseStream("application/json");
-  serializeJson(doc, *response);
-  request->send(response);
+  // read from flash and send
 }
 
-void Mode1_Init(void)
+void Mode2_Init(void)
 {
   server->on("/", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(200, "text/plain", "hello"); });
@@ -32,12 +25,13 @@ void Mode1_Init(void)
   server->onNotFound([](AsyncWebServerRequest *request)
                     { request->send(404, "text/plain", "Not found"); });
   server->begin();
-  debugln("started mode 1 server");
+  debugln("started mode 2 server");
 }
 
-void Mode1_Loop(void)
+void Mode2_Loop(void)
 {
   delay(SAMPLE_PERIOD);
   debugln("[A]: Start Calculating.");
   calculateANDwritenergy();
+  // save to flash
 }

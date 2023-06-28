@@ -2,8 +2,6 @@
 #include "complex.hpp"
 #include "constants.hpp"
 
-boolean CalculateFlag = false;
-
 double power = 0;
 double voltage = 0;
 double current = 0;
@@ -85,10 +83,10 @@ void calculate(int Time, int phase, int inPinVoltage, int inPinCurrent)
   while ((millis() - startTime) < Time)
   {
 
-    volt = analogRead(Constants::inPinVoltage);
+    volt = analogRead(Constants::VoltagePin);
     voltage_fft = volt - dc_voltage;
     v[No] = Voltage_Scale_FFT * ((voltage_fft * (3.3)) / 4095);
-    current_fft = analogRead(Constants::inPinCurrent);
+    current_fft = analogRead(Constants::CurrentPin);
     current_fft = current_fft - dc_current;
     i[No] = Current_Scale_FFT * ((current_fft * (3.3)) / 4095);
     No++;
@@ -172,13 +170,12 @@ void ConfigSensors(int no)
 void CalculateVI()
 {
   resetParameters();
-  calculate(20, 0, Constants::inPinVoltage, Constants::inPinCurrent);
+  calculate(20, 0, Constants::VoltagePin, Constants::CurrentPin);
 }
 
 // double sum = 0;
 void SP_CalculateEnergy()
 {
-
   energy += (((SM_SendDataPeriod)*power * 0.001) / 3600); // Wh{
   // sum = sum + energy;
 

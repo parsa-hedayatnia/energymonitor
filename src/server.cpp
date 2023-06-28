@@ -1,3 +1,7 @@
 #include "server.hpp"
 
-AsyncWebServer server(80);
+AsyncWebServer *server;
+
+void createServer() {
+  server = new AsyncWebServer(80);
+}

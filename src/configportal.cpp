@@ -7,7 +7,7 @@
 #include <WiFi.h>
 
 bool done = false;
-ConfigPoralParameters parameters;
+ConfigPortalParameters parameters = ConfigPortalParameters();
 
 void onRoot(AsyncWebServerRequest *request)
 {
@@ -18,12 +18,15 @@ void onRoot(AsyncWebServerRequest *request)
 
 void onSetSettings(AsyncWebServerRequest *request)
 {
-  if (!request->hasParam("selectedMode"))
+  if (!request->hasParam("selectedMode") || !request->hasParam("isAP") || !request->hasParam("ssid") || !request->hasParam("password"))
   {
     return;
   }
 
   parameters.operationMode = request->getParam("selectedMode")->value().toInt();
+  parameters.isAP = request->getParam("isAP")->value() == "true";
+  parameters.ssid = request->getParam("ssid")->value();
+  parameters.password = request->getParam("password")->value();
 
   AsyncResponseStream *response = request->beginResponseStream("text/html");
   response->print(Pages::configDone);
@@ -35,32 +38,30 @@ void onSetSettings(AsyncWebServerRequest *request)
   WiFi.mode(WIFI_OFF);
 }
 
-ConfigPoralParameters startConfigPoral()
+ConfigPortalParameters startConfigPoral()
 {
   done = false;
 
-  Serial.println("Setting up access point");
+  debugln("Setting up access point");
   WiFi.mode(WIFI_AP);
-  WiFi.softAP(Constants::ConfigStationSSID, Constants::StationPassword);
+  WiFi.softAP(Constants::ConfigStationSSID, Constants::ConfigStationPassword);
 
-  if (MDNS.begin(Constants::ConfigPoralAddress))
+  if (MDNS.begin(Constants::ConfigPortalAddress))
   {
-    Serial.println("MDNS responder started");
+    debugln("MDNS responder started");
   }
 
-  server.on("/", HTTP_GET, onRoot);
-  server.on("/settings", HTTP_GET, onSetSettings);
-  server.onNotFound([](AsyncWebServerRequest *request)
+  server->on("/", HTTP_GET, onRoot);
+  server->on("/settings", HTTP_GET, onSetSettings);
+  server->onNotFound([](AsyncWebServerRequest *request)
                     { request->send(404, "text/plain", "Not found"); });
-  server.begin();
-  Serial.printf("Go to http://%s, I'll wait here", Constants::ConfigPoralAddress);
+  server->begin();
+  debugln("Go to http://%s.local, I'll wait");
 
   while (!done)
-  {
-    delay(1000);
-  }
+    ;
 
-  server.reset();
+  server->reset();
 
   return parameters;
 }

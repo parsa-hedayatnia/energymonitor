@@ -3,6 +3,8 @@
 
 #include <ESPAsyncWebServer.h>
 
-extern AsyncWebServer server;
+extern AsyncWebServer *server;
+
+void createServer();
 
 #endif
