@@ -7,6 +7,7 @@
 
 #ifdef DEBUG
 #define debug_begin(x) Serial.begin(x); while (!Serial);
+#define debug(x) Serial.print(x)
 #define debugln(x) Serial.println(x)
 #else
 #define debug_begin(x)
