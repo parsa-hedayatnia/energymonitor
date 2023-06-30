@@ -27,9 +27,9 @@ void onSetSettings(AsyncWebServerRequest *request)
   // parameters.isAP = request->getParam("isAP")->value() == "true";
   // parameters.ssid = request->getParam("ssid")->value();
   // parameters.password = request->getParam("password")->value();
-  parameters.isAP = false;
+  parameters.isAP = true;
   parameters.ssid = "ssid";
-  parameters.password = "F]a%9;*n!e'H_?@D(s/,Y";
+  parameters.password = "password";
   debugln("there");
 
   AsyncResponseStream *response = request->beginResponseStream("text/html");
