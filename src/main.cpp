@@ -6,6 +6,7 @@
 #include "mode2.hpp"
 #include "mode3.hpp"
 #include "server.hpp"
+#include "client.hpp"
 #include <Arduino.h>
 #include <ESPmDNS.h>
 #include <Preferences.h>
@@ -74,9 +75,13 @@ void setup()
       debugln("MDNS responder started");
     }
 
-    if (selectedMode == MODE1 || selectedMode == MODE2)
+    if (selectedMode == MODE1 || selectedMode == MODE2 || selectedMode == GATEWAY)
     {
       createServer();
+    }
+    else if(selectedMode == MODE3)
+    {
+      createClient();
     }
 
     switch (selectedMode)
