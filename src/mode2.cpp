@@ -194,7 +194,7 @@ void mode2OnData(AsyncWebServerRequest *request)
   readOffset += clbCount;
   if (clbCount < 100)
   {
-    rc = db_exec(db1, "DELETE * FROM test1;");
+    rc = db_exec(db1, "DELETE FROM test1;");
     if (rc != SQLITE_OK)
     {
       sqlite3_close(db1);
@@ -273,12 +273,13 @@ void Mode2_Loop(void)
     debugln("[A]: Start Calculating.");
     calculateANDwritenergy();
     lastMillis = millis();
+    saveToFlash();
   }
   // save to flash
 
-  if (millis() - lastMillis2 > 3600000)
-  {
-    saveToFlash();
-    lastMillis2 = millis();
-  }
+  // if (millis() - lastMillis2 > 3600000)
+  // {
+  //   saveToFlash();
+  //   lastMillis2 = millis();
+  // }
 }
