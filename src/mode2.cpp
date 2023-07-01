@@ -35,33 +35,42 @@ int db_open(const char *filename, sqlite3 **db)
   return rc;
 }
 
-double tmpEnergy;
-double tmpVoltage;
-double tmpCurrent;
-double tmpThdVoltage;
-double tmpThdCurrent;
-double tmpPf;
+long long tmpRowid[100];
+double tmpEnergy[100];
+double tmpVoltage[100];
+double tmpCurrent[100];
+double tmpThdVoltage[100];
+double tmpThdCurrent[100];
+double tmpPf[100];
+int tmpIdx = 0;
+long long readOffset = 0;
+int clbCount = 0;
 
 const char *data = "Callback function called";
 static int callback(void *data, int argc, char **argv, char **azColName)
 {
   int i;
   // Serial.printf("%s: ", (char *)data);
+  // debugln(argc);
   for (i = 0; i < argc; i++)
   {
     Serial.printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
   }
 
-  if (argc == 6)
+  if ((argc == 7) && (tmpIdx < 100))
   {
-    tmpEnergy = atof(argv[0]);
-    tmpVoltage = atof(argv[1]);
-    tmpCurrent = atof(argv[2]);
-    tmpThdVoltage = atof(argv[3]);
-    tmpThdCurrent = atof(argv[4]);
-    tmpPf = atof(argv[5]);
+    tmpRowid[tmpIdx] = atoll(argv[0]);
+    tmpEnergy[tmpIdx] = atof(argv[1]);
+    tmpVoltage[tmpIdx] = atof(argv[2]);
+    tmpCurrent[tmpIdx] = atof(argv[3]);
+    tmpThdVoltage[tmpIdx] = atof(argv[4]);
+    tmpThdCurrent[tmpIdx] = atof(argv[5]);
+    tmpPf[tmpIdx] = atof(argv[6]);
+    tmpIdx++;
+    clbCount++;
   }
-  Serial.printf("\n");
+
+  // Serial.printf("\n");
   return 0;
 }
 
@@ -170,27 +179,61 @@ void mode2OnData(AsyncWebServerRequest *request)
 {
   // read from flash and send
   char tmpstr[200];
-  sprintf(tmpstr, "SELECT * FROM test1 WHERE rowid=%ld;", sqlite3_last_insert_rowid(db1));
+  tmpIdx = 0;
+  sqlite3_close(db1);
+  if (db_open("/spiffs/test1.db", &db1))
+    return;
+  clbCount = 0;
+  sprintf(tmpstr, "SELECT rowid, energy, voltage, current, tvoltage, tcurrent, pf FROM test1 ORDER BY rowid ASC LIMIT 100 OFFSET %ld;", readOffset); // WHERE rowid=%ld;", sqlite3_last_insert_rowid(db1));
   rc = db_exec(db1, tmpstr);
   if (rc != SQLITE_OK)
   {
     sqlite3_close(db1);
     return;
   }
+  readOffset += clbCount;
+  if (clbCount < 100)
+  {
+    rc = db_exec(db1, "DELETE * FROM test1;");
+    if (rc != SQLITE_OK)
+    {
+      sqlite3_close(db1);
+      return;
+    }
+    readOffset = 0;
+  }
 
-  DynamicJsonDocument doc(1024);
-  doc["mode"] = "mode1";
-  doc["energy"] = tmpEnergy;
+  DynamicJsonDocument doc(12288);
+  JsonArray data = doc.createNestedArray("data");
+
+  for (size_t i = 0; i < tmpIdx; i++)
+  {
+    StaticJsonDocument<192> doc2;
+    doc2["energy"] = tmpEnergy[i];
+    doc2["voltage"] = tmpVoltage[i];
+    doc2["current"] = tmpCurrent[i];
+    doc2["pf"] = tmpPf[i];
+    doc2["thdVoltage"] = tmpThdVoltage[i];
+    doc2["thdCurrent"] = tmpThdCurrent[i];
+    data.add(doc2);
+  }
+
+  doc["mode"] = "mode2";
   doc["mac"] = WiFi.macAddress();
-  doc["voltage"] = tmpVoltage;
-  doc["current"] = tmpCurrent;
-  doc["pf"] = tmpPf;
-  doc["thdVoltage"] = tmpThdVoltage;
-  doc["thdCurrent"] = tmpThdCurrent;
 
   AsyncResponseStream *response = request->beginResponseStream("application/json");
   serializeJson(doc, *response);
+  // serializeJsonPretty(doc, Serial);
   request->send(response);
+
+
+  // sprintf(tmpstr, "DELETE FROM test1 WHERE rowid IN (SELECT rowid FROM test1 ORDER BY rowid ASC LIMIT 100);"); // WHERE rowid=%ld;", sqlite3_last_insert_rowid(db1));
+  // rc = db_exec(db1, tmpstr);
+  // if (rc != SQLITE_OK)
+  // {
+  //   sqlite3_close(db1);
+  //   return;
+  // }
 }
 
 void Mode2_Init(void)
@@ -221,9 +264,21 @@ void saveToFlash()
 
 void Mode2_Loop(void)
 {
-  delay(SAMPLE_PERIOD);
-  debugln("[A]: Start Calculating.");
-  calculateANDwritenergy();
+
+  static unsigned long lastMillis = 0, lastMillis2 = 0, lastMillis3 = 0, lastMillis4 = 0;
+
+ 
+  if (millis() - lastMillis > SAMPLE_PERIOD)
+  {
+    debugln("[A]: Start Calculating.");
+    calculateANDwritenergy();
+    lastMillis = millis();
+  }
   // save to flash
-  saveToFlash();
+
+  if (millis() - lastMillis2 > 3600000)
+  {
+    saveToFlash();
+    lastMillis2 = millis();
+  }
 }
