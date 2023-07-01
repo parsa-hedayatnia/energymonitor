@@ -38,11 +38,16 @@ namespace Constants
   extern const char *WifiPasswordAddress;
   extern const char *SelectedBoardAddress;
   extern const char *IsAPAddress;
+  extern const char *TokenAddress;
 
   // Config Portal
   extern const char *ConfigStationSSID;
   extern const char *ConfigStationPassword;
   extern const char *ConfigPortalAddress;
+
+    // Others
+  extern const char *MDNSAddress;
+  extern const char *GatewayMDNSAddress;
 }
 
 #endif

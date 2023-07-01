@@ -13,6 +13,7 @@
 
 Preferences NVS;
 OpMode selectedMode;
+String token;
 
 void onWifiButtonInterrupt(void)
 {
@@ -38,6 +39,7 @@ void setup()
     bool isAP = NVS.getBool(Constants::IsAPAddress);
     String ssid = NVS.getString(Constants::WifiSSIDAddress);
     String password = NVS.getString(Constants::WifiPasswordAddress);
+    token = NVS.getString(Constants::TokenAddress);
 
     debugln(OpModeNames[selectedMode] + " Was Selected.");
     debugln("SSID: " + ssid + " | Password: " + password);
@@ -67,7 +69,7 @@ void setup()
       }
     }
 
-    if (MDNS.begin(Constants::ConfigPortalAddress))
+    if (MDNS.begin(selectedMode == GATEWAY ? Constants::GatewayMDNSAddress : Constants::MDNSAddress))
     {
       debugln("MDNS responder started");
     }
@@ -106,6 +108,7 @@ void setup()
   NVS.putBool(Constants::IsAPAddress, params.isAP);
   NVS.putString(Constants::WifiSSIDAddress, params.ssid);
   NVS.putString(Constants::WifiPasswordAddress, params.password);
+  NVS.putString(Constants::TokenAddress, params.token);
 
   ESP.restart();
 }

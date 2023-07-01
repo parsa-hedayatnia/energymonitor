@@ -18,28 +18,21 @@ void onRoot(AsyncWebServerRequest *request)
 
 void onSetSettings(AsyncWebServerRequest *request)
 {
-  // if (!request->hasParam("selectedMode") || !request->hasParam("isAP") || !request->hasParam("ssid") || !request->hasParam("password"))
-  // {
-  //   return;
-  // }
+  if (!request->hasParam("selectedMode") || !request->hasParam("ssid") || !request->hasParam("password") || !request->hasParam("token"))
+  {
+    return;
+  }
 
   parameters.operationMode = request->getParam("selectedMode")->value().toInt();
-  // parameters.isAP = request->getParam("isAP")->value() == "true";
-  // parameters.ssid = request->getParam("ssid")->value();
-  // parameters.password = request->getParam("password")->value();
-  parameters.isAP = false;
-  parameters.ssid = "ssid";
-  parameters.password = "F]a%9;*n!e'H_?@D(s/,Y";
-  debugln("there");
+  parameters.isAP = parameters.operationMode == MODE1 || parameters.operationMode == MODE2;
+  parameters.ssid = request->getParam("ssid")->value();
+  parameters.password = request->getParam("password")->value();
+  parameters.token = request->getParam("token")->value();
 
   AsyncResponseStream *response = request->beginResponseStream("text/html");
   response->print(Pages::configDone);
   request->send(response);
   done = true;
-
-  delay(1000);
-  // WiFi.softAPdisconnect(true);
-  WiFi.mode(WIFI_OFF);
 }
 
 ConfigPortalParameters startConfigPoral()
@@ -59,7 +52,7 @@ ConfigPortalParameters startConfigPoral()
   server->on("/", HTTP_GET, onRoot);
   server->on("/settings", HTTP_GET, onSetSettings);
   server->onNotFound([](AsyncWebServerRequest *request)
-                    { request->send(404, "text/plain", "Not found"); });
+                     { request->send(404, "text/plain", "Not found"); });
   server->begin();
   debugln("Go to http://sem.local, I'll wait");
 

@@ -9,6 +9,7 @@ struct ConfigPortalParameters
   bool isAP;
   String ssid;
   String password;
+  String token;
 };
 
 ConfigPortalParameters startConfigPoral();
