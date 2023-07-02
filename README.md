@@ -23,7 +23,7 @@ Mode 1,2 is for local mode of device using mobile App. The differene of this 2 m
 In mode 1 its aggregate energy, but in mode 2 the data is per hour.
 In order to work in these modes you have to enter SSID and Password which you want to use for your device. 
 In mode 1,2 you device works as an Access Point.
-![Mode1](/Screenshots/Mode1.PNG) ![Mode2](/Screenshots/Mode2.PNG)
+![Mode1,2](/Screenshots/Mode1,2.PNG) 
 
 In the third mode your device works as a node. It should be connected into a SSID and use it as a gateway. So you have to enter SSID and Password of a gateway.
 ![Mode3](/Screenshots/Mode3.PNG)
