@@ -19,15 +19,18 @@ Then go to Wifi setting of your phone or computer. Connect to <ConfigMePlease>
 
 Go to your browser and enter <sem.local>
 The page containes 3 modes plus 1 gateway mode.
+### Mode 1,2
 Mode 1,2 is for local mode of device using mobile App. The differene of this 2 modes is in the data which is calculated.
 In mode 1 its aggregate energy, but in mode 2 the data is per hour.
 In order to work in these modes you have to enter SSID and Password which you want to use for your device. 
 In mode 1,2 you device works as an Access Point.
 ![Mode1,2](/Screenshots/Mode1,2.PNG) 
 
+### Mode 3
 In the third mode your device works as a node. It should be connected into a SSID and use it as a gateway. So you have to enter SSID and Password of a gateway.
 ![Mode3](/Screenshots/Mode3.PNG)
 
+### Mode 4(Gateway)
 The last mode is gateway mode. SEM device is a gateway here. So you should enter SSID and Password of a router or external network.
 Here you should enter the token which MobileApp or website gives to you.
 ![Mode4](/Screenshots/Mode4.PNG)
