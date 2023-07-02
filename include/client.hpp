@@ -44,5 +44,5 @@ void createClient();
 void setupHttpsClient();
 
 int sendHttpPOSTrequest(WiFiClient client, const char* serverName, String httpRequestData);
-int sendHttpsPOSTrequest();
+int sendHttpsPOSTrequest(String requestBody);
 #endif
