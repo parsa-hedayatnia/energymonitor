@@ -15,7 +15,7 @@ First of you have to connect device into urban electrisity.
 
 
 Then go to Wifi setting of your phone or computer. Connect to <ConfigMePlease>
-![Connect-to-SSID](/Screenshots/Connect-to-SSID.PNG)
+![Connect-to-SSID](/Screenshots/Connect-to-Ssid.PNG)
 
 Go to your browser and enter <sem.local>
 The page containes 3 modes plus 1 gateway mode.
