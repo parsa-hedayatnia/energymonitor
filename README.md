@@ -32,5 +32,5 @@ In the third mode your device works as a node. It should be connected into a SSI
 
 ### Mode 4(Gateway)
 The last mode is gateway mode. SEM device is a gateway here. So you should enter SSID and Password of a router or external network.
-Here you should enter the token which MobileApp or website gives to you.
+Here you should enter the token which MobileApp or website gives to you. The network which you connect to, should be the one in mode 3
 ![Mode4](/Screenshots/Mode4.PNG)
