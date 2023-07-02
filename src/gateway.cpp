@@ -21,15 +21,15 @@ void action(AsyncWebServerRequest * request, uint8_t *data, size_t len, size_t i
 void Gateway_Init(void)
 {   
     server->on(
-              "/action",
+              "/publish",
               HTTP_POST,
               [](AsyncWebServerRequest * request){},
               NULL,
               action);
+  server->begin();
 }
 
 void Gateway_Loop(void)
 {
-      Serial.printf("GW");
-      delay(1000); 
+
 }
