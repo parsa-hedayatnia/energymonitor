@@ -10,7 +10,8 @@ The part that is implemented in this repository is 4 different modes of this pro
 
 ## Getting-Started
 First of you have to connect device into urban electrisity.
-!![Connect-to-E](/Screenshots/Connect-to-E.png)
+![Connect-to-E](/Screenshots/Connect-to-E.png)
+
 
 Then go to Wifi setting of your phone or computer. Connect to <ConfigMePlease>
 ![Connect-to-SSID](/Screenshots/Connect-to-SSID.PNG)
