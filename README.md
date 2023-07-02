@@ -3,6 +3,7 @@
 * [Introduction](#Introduction)
 * [Getting Started](#Getting-Started)
 * [Includes](#Includes)
+* [Mode1](#Mode1)
 
 
 ## Introduction
@@ -16,6 +17,7 @@ First of you have to connect device into urban electrisity.
 
 
 Then go to Wifi setting of your phone or computer. Connect to <ConfigMePlease>
+
 ![Connect-to-SSID](/Screenshots/Connect-to-Ssid.PNG)
 
 Go to your browser and enter <sem.local>
@@ -25,15 +27,18 @@ Mode 1,2 is for local mode of device using mobile App. The differene of this 2 m
 In mode 1 its aggregate energy, but in mode 2 the data is per hour.
 In order to work in these modes you have to enter SSID and Password which you want to use for your device. 
 In mode 1,2 you device works as an Access Point.
+
 ![Mode1,2](/Screenshots/Mode1,2.PNG) 
 
 ### Mode 3
-In the third mode your device works as a node. It should be connected into a SSID and use it as a gateway. So you have to enter SSID and Password of a gateway.
+In the third mode your device works as a node. It should be connected into a SSID and use it as a gateway. So you should enter SSID and Password of a router or external network.
+
 ![Mode3](/Screenshots/Mode3.PNG)
 
 ### Mode 4(Gateway)
 The last mode is gateway mode. SEM device is a gateway here. So you should enter SSID and Password of a router or external network.
 Here you should enter the token which MobileApp or website gives to you. The network which you connect to, should be the one in mode 3
+
 ![Mode4](/Screenshots/Mode4.PNG)
 
 
@@ -68,3 +73,21 @@ This library is for html pages. We have two pages. The first page is for the con
 The last library is for creating esp asynchronous web server.
 
 
+## Mode1
+First of all we should implement some libraries which are defined in [Includes](#Includes)
+
+![Mode1-onData](/Screenshots/mode1-onData.png)
+
+This function recieves a request as a parameter. Based on that request , creates a response.response is a json file which contains mode, energy and mac. The getEnergy function that fills energy field is in calculate.hpp. Wifi.macAddress is in wifi.h that is a library in constants.hpp
+Then , the created json file will be serialized and will be sent as response.
+
+![Mode1-init](/Screenshots/mode1-init.png)
+
+In this function we first set our endpoints. We only have 2 endpoints, so for every other endpoints except “/” and “/data” the result will be 404 not found.
+onData function is called when we are in “/data” endpoint.
+
+After creating endpoints, we begin the server.
+
+![Mode1-loop](/Screenshots/mode1-loop.png)
+
+We have 5s delay per loop and in each loop by calling calculateANDwritenergy, the calculation of the energy begins. This function is overwritten in calculate.hpp
