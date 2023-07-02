@@ -7,6 +7,6 @@ extern HTTPClient  *http;
 
 void createClient();
 
-int Send(WiFiClient client, String httpRequestData );
+int sendHttpPOSTrequest(WiFiClient client, const char* serverName, String httpRequestData);
 
 #endif

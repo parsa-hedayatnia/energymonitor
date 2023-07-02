@@ -10,24 +10,26 @@
 #include <sqlite3.h>
 #include <SPIFFS.h>
 
+#include "constants.hpp"
 
-void action(AsyncWebServerRequest *request) {
-  Serial.println("ACTION!");
-
-  int params = request->params();
-  for (int i = 0; i < params; i++) {
-    AsyncWebParameter* p = request->getParam(i);
-    Serial.printf("POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
-  }
-  request->send_P(200, "text/html", NULL);
+void action(AsyncWebServerRequest * request, uint8_t *data, size_t len, size_t index, size_t total) {
+  debugln(String((char*) data));
+  // NVS.putString(addrSP_ApiToken ,SM_ApiToken);
+  request->send(200);
 }
 
 void Gateway_Init(void)
 {   
-    server->on("/action", HTTP_POST, action);
+    server->on(
+              "/action",
+              HTTP_POST,
+              [](AsyncWebServerRequest * request){},
+              NULL,
+              action);
 }
 
 void Gateway_Loop(void)
 {
-       
+      Serial.printf("GW");
+      delay(1000); 
 }
