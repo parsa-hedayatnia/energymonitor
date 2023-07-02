@@ -209,12 +209,12 @@ void mode2OnData(AsyncWebServerRequest *request)
   for (size_t i = 0; i < tmpIdx; i++)
   {
     StaticJsonDocument<192> doc2;
-    doc2["energy"] = tmpEnergy[i];
+    doc2["consumption"] = tmpEnergy[i];
     doc2["voltage"] = tmpVoltage[i];
     doc2["current"] = tmpCurrent[i];
-    doc2["pf"] = tmpPf[i];
-    doc2["thdVoltage"] = tmpThdVoltage[i];
-    doc2["thdCurrent"] = tmpThdCurrent[i];
+    // doc2["pf"] = tmpPf[i];
+    doc2["THDv"] = tmpThdVoltage[i];
+    doc2["THDi"] = tmpThdCurrent[i];
     data.add(doc2);
   }
 
