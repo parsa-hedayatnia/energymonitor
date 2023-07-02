@@ -2,6 +2,7 @@
 > An implementation of different modes of SEM IOT project.
 * [Introduction](#Introduction)
 * [Getting Started](#Getting-Started)
+* [Includes](#Includes)
 
 
 ## Introduction
@@ -34,3 +35,36 @@ In the third mode your device works as a node. It should be connected into a SSI
 The last mode is gateway mode. SEM device is a gateway here. So you should enter SSID and Password of a router or external network.
 Here you should enter the token which MobileApp or website gives to you. The network which you connect to, should be the one in mode 3
 ![Mode4](/Screenshots/Mode4.PNG)
+
+
+## Includes
+
+![includes](/Screenshots/includes.png)
+#### calculate.hpp
+As it can be understood by its name, this library helps us for our calculations. The functions are based on the official library of Arduino. 
+
+#### client.hpp
+This library is for requesting https by clients.
+
+#### complex.hpp
+This library is for calculate and work with complex numbers
+
+#### configportal.hpp
+This library is for the main portal of application(sem.local). Based on our current mode, the device is an access point or not. The token attribute is only used in gateway mode.
+
+#### constants.hpp
+Our constants are in this library. We divide the constants into 4 groups. The first group is for pins of the board. The second one has addresses of NVS. The third group has the constants of config portal (sem.local). The last group, which is named others, is for MDNS configuration.
+
+#### gateway.hpp
+#### mode1.hpp
+#### mode2.hpp
+#### mode3.hpp
+Same as arduino, esp has 2 main functions: Init and loop. Based on the mode which we are in, the function which is related to that mode is called. The signature of those functions are in .hpp files.
+
+#### page.hpp
+This library is for html pages. We have two pages. The first page is for the configuration page (configPage) and the second one will be shown when the configuration is done.
+
+#### server.hpp
+The last library is for creating esp asynchronous web server.
+
+
