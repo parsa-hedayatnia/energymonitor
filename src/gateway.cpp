@@ -44,12 +44,12 @@ void Gateway_Loop(void)
 {
   if(pckt_cnt>=50||(millis()-lastSend>=sendInterval))
   {
-    sendData="[";
+    sendData="{\"data\":[";
     for(int i=0;i<pckt_cnt-1;i++)
     {
       sendData = sendData + nodes_data[i] + ",";
     }
-    sendData = sendData + nodes_data[pckt_cnt-1] + "]";
+    sendData = sendData + nodes_data[pckt_cnt-1] + "]}";
     sendHttpsPOSTrequest(sendData);
     pckt_cnt = 0;
     lastSend = millis();
