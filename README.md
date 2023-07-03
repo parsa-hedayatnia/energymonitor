@@ -4,6 +4,7 @@
 * [Getting Started](#Getting-Started)
 * [Includes](#Includes)
 * [Mode1](#Mode1)
+* [Mode2](#Mode2)
 
 
 ## Introduction
@@ -74,20 +75,202 @@ The last library is for creating esp asynchronous web server.
 
 
 ## Mode1
+Mode 1,2 is for local mode of device using mobile App. The differene of this 2 modes is in the data which is calculated.
+In mode 1 its aggregate energy, but in mode 2 the data is per hour.
 First of all we should implement some libraries which are defined in [Includes](#Includes)
 
-![Mode1-onData](/Screenshots/mode1-onData.png)
+```cpp
+void onData(AsyncWebServerRequest *request)
+{
+  DynamicJsonDocument doc(1024);
+  JsonArray data = doc.createNestedArray("data");
+  StaticJsonDocument<192> doc2;
+  doc2["consumption"] = getEnergy();
+  doc2["voltage"] = getVoltage();
+  doc2["current"] = getCurrent();
+  doc2["THDv"] = getThdVoltage;
+  doc2["THDi"] = getThdCurrent();
+  data.add(doc2);
+
+  doc["mode"] = "mode1";
+  doc["mac"] = WiFi.macAddress();
+
+  AsyncResponseStream *response = request->beginResponseStream("application/json");
+  serializeJson(doc, *response);
+  request->send(response);
+}
+```
 
 This function recieves a request as a parameter. Based on that request , creates a response.response is a json file which contains mode, energy and mac. The getEnergy function that fills energy field is in calculate.hpp. Wifi.macAddress is in wifi.h that is a library in constants.hpp
 Then , the created json file will be serialized and will be sent as response.
 
-![Mode1-init](/Screenshots/mode1-init.png)
+```cpp
+void Mode1_Init(void)
+{
+  server->on("/", HTTP_GET, [](AsyncWebServerRequest *request)
+             { request->send(200, "text/plain", "hello"); });
+  server->on("/data", HTTP_GET, onData);
+  server->onNotFound([](AsyncWebServerRequest *request)
+                     { request->send(404, "text/plain", "Not found"); });
+  server->begin();
+  debugln("started mode 1 server");
+}
+```
 
 In this function we first set our endpoints. We only have 2 endpoints, so for every other endpoints except “/” and “/data” the result will be 404 not found.
 onData function is called when we are in “/data” endpoint.
 
 After creating endpoints, we begin the server.
 
-![Mode1-loop](/Screenshots/mode1-loop.png)
-
+```cpp
+void Mode1_Loop(void)
+{
+  delay(SAMPLE_PERIOD);
+  debugln("[A]: Start Calculating.");
+  calculateANDwritenergy();
+}
+```
 We have 5s delay per loop and in each loop by calling calculateANDwritenergy, the calculation of the energy begins. This function is overwritten in calculate.hpp
+
+### Mode 2
+Mode 1,2 is for local mode of device using mobile App. The differene of this 2 modes is in the data which is calculated.
+In mode 1 its aggregate energy, but in mode 2 the data is per hour.
+First of all we should implement some libraries which are defined in [Includes](#Includes)
+```cpp
+static int callback(void *data, int argc, char **argv, char **azColName)
+{
+  int i;
+  for (i = 0; i < argc; i++)
+  {
+    Serial.printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+  }
+
+  if ((argc == 7) && (tmpIdx < 100))
+  {
+    tmpRowid[tmpIdx] = atoll(argv[0]);
+    tmpEnergy[tmpIdx] = atof(argv[1]);
+    tmpVoltage[tmpIdx] = atof(argv[2]);
+    tmpCurrent[tmpIdx] = atof(argv[3]);
+    tmpThdVoltage[tmpIdx] = atof(argv[4]);
+    tmpThdCurrent[tmpIdx] = atof(argv[5]);
+    tmpPf[tmpIdx] = atof(argv[6]);
+    tmpIdx++;
+    clbCount++;
+  }
+
+  return 0;
+}
+```
+This function is called in db_exec(). After we pass records of a query, this function runs some calculations on each record of that query
+
+```cpp
+int db_exec(sqlite3 *db, const char *sql)
+{
+  debugln(sql);
+  int rc = sqlite3_exec(db, sql, callback, (void *)data, &zErrMsg);
+  if (rc != SQLITE_OK)
+  {
+    Serial.printf("SQL error: %s\n", zErrMsg);
+    sqlite3_free(zErrMsg);
+  }
+  else
+  {
+    Serial.printf("Operation done successfully\n");
+  }
+  return rc;
+}
+```
+This function receives a database and a query for that database. Then runs the query on database and 
+
+```cpp
+void mode2OnData(AsyncWebServerRequest *request)
+{
+  char tmpstr[200];
+  tmpIdx = 0;
+  sqlite3_close(db1);
+  if (db_open("/spiffs/test1.db", &db1))
+    return;
+  clbCount = 0;
+  sprintf(tmpstr, "SELECT rowid, energy, voltage, current, tvoltage, tcurrent, pf FROM test1 ORDER BY rowid ASC LIMIT 100 OFFSET %ld;", readOffset); // WHERE rowid=%ld;", sqlite3_last_insert_rowid(db1));
+  rc = db_exec(db1, tmpstr);
+  if (rc != SQLITE_OK)
+  {
+    sqlite3_close(db1);
+    return;
+  }
+  readOffset += clbCount;
+  if (clbCount < 100)
+  {
+    rc = db_exec(db1, "DELETE FROM test1;");
+    if (rc != SQLITE_OK)
+    {
+      sqlite3_close(db1);
+      return;
+    }
+    readOffset = 0;
+  }
+  DynamicJsonDocument doc(12288);
+  JsonArray data = doc.createNestedArray("data");
+
+  for (size_t i = 0; i < tmpIdx; i++)
+  {
+    StaticJsonDocument<192> doc2;
+    doc2["consumption"] = tmpEnergy[i];
+    doc2["voltage"] = tmpVoltage[i];
+    doc2["current"] = tmpCurrent[i];
+    // doc2["pf"] = tmpPf[i];
+    doc2["THDv"] = tmpThdVoltage[i];
+    doc2["THDi"] = tmpThdCurrent[i];
+    data.add(doc2);
+  }
+
+  doc["mode"] = "mode2";
+  doc["mac"] = WiFi.macAddress();
+
+  AsyncResponseStream *response = request->beginResponseStream("application/json");
+  serializeJson(doc, *response);
+  request->send(response);
+}
+
+```
+This method has a query which is going to be run on the database. After that, creates a json file based on records of a query. This response will be shown on the “/data” endpoint.
+The json parameters are: {consumption, voltage, current, THDv, THDi} which are field by records of the query. The {mac} parameter is field by a method that is in wifi.h (in constants.hpp)
+
+```cpp
+void Mode2_Init(void)
+{
+  server->on("/", HTTP_GET, [](AsyncWebServerRequest *request)
+             { request->send(200, "text/plain", "hello"); });
+  server->on("/data", HTTP_GET, mode2OnData);
+  server->onNotFound([](AsyncWebServerRequest *request)
+                     { request->send(404, "text/plain", "Not found"); });
+  server->begin();
+  debugln("started mode 2 server");
+  dbInit();
+}
+```
+In this function we first set our endpoints. We only have 2 endpoints, so for every other endpoint except “/” and “/data” the result will be 404 not found. onData function is called when we are in “/data” endpoint.
+After creating endpoints, we begin the server.
+
+```cpp
+void Mode2_Loop(void)
+{
+
+  static unsigned long lastMillis = 0, lastMillis2 = 0, lastMillis3 = 0, lastMillis4 = 0;
+
+ 
+  if (millis() - lastMillis > SAMPLE_PERIOD)
+  {
+    debugln("[A]: Start Calculating.");
+    calculateANDwritenergy();
+    lastMillis = millis();
+    saveToFlash();
+
+  if (millis() - lastMillis2 > 3600000)
+   {
+     saveToFlash();
+     lastMillis2 = millis();
+   }
+}
+```
+Each hour, saves data on the database by calling saveToFlash() function.
