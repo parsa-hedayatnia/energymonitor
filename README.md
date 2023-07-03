@@ -132,7 +132,7 @@ void Mode1_Loop(void)
 ```
 We have 5s delay per loop and in each loop by calling calculateANDwritenergy, the calculation of the energy begins. This function is overwritten in calculate.hpp
 
-### Mode 2
+### Mode2
 Mode 1,2 is for local mode of device using mobile App. The differene of this 2 modes is in the data which is calculated.
 In mode 1 its aggregate energy, but in mode 2 the data is per hour.
 First of all we should implement some libraries which are defined in [Includes](#Includes)
