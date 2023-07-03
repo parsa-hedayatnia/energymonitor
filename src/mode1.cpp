@@ -20,7 +20,7 @@ void onData(AsyncWebServerRequest *request)
   doc2["consumption"] = getEnergy();
   doc2["voltage"] = getVoltage();
   doc2["current"] = getCurrent();
-  doc2["THDv"] = getThdVoltage;
+  doc2["THDv"] = getThdVoltage();
   doc2["THDi"] = getThdCurrent();
   data.add(doc2);
 
