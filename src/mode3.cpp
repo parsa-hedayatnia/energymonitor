@@ -30,11 +30,12 @@ void sendDataToGW()
   String output;
   serializeJson(doc, output);
   // send http post req
+  sendHttpPOSTrequest("http://gateway.local", output);
 }
 
 void Mode3_Init(void)
 {
-    
+    createClient();
 }
 
 void Mode3_Loop(void)

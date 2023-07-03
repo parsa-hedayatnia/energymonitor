@@ -10,6 +10,6 @@ extern WiFiClientSecure clientSecure;
 void createClient();
 void setupHttpsClient();
 
-int sendHttpPOSTrequest(WiFiClient client, const char* serverName, String httpRequestData);
+int sendHttpPOSTrequest(const char* url, String httpRequestData);
 int sendHttpsPOSTrequest(String body);
 #endif

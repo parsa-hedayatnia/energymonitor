@@ -44,9 +44,10 @@ void createClient() {
   http = new HTTPClient();
 }
 
-int sendHttpPOSTrequest(WiFiClient client, const char* serverName, String httpRequestData)
+int sendHttpPOSTrequest(const char* url, String httpRequestData)
 {
-    http->begin(client, serverName);
+  // http->begin("http://jsonplaceholder.typicode.com/posts");
+    http->begin(url);
     http->addHeader("Content-Type", "application/json");
     int httpResponseCode = http->POST(httpRequestData);
     debugln(httpResponseCode);
