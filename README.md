@@ -53,13 +53,13 @@ As it can be understood by its name, this library helps us for our calculations.
 This library is for requesting https by clients.
 
 #### complex.hpp
-This library is for calculate and work with complex numbers
+This library is for calculate and work with complex numbers.
 
 #### configportal.hpp
-This library is for the main portal of application(sem.local). Based on our current mode, the device is an access point or not. The token attribute is only used in gateway mode.
+This library is for the main portal of application(sem.local). Based on our current mode, the device is an access point or not. The token attribute is only used in gateway mode. In "configPortal.cpp" this attributes are filled and response to each endpoint of this webpage is set.
 
 #### constants.hpp
-Our constants are in this library. We divide the constants into 4 groups. The first group is for pins of the board. The second one has addresses of NVS. The third group has the constants of config portal (sem.local). The last group, which is named others, is for MDNS configuration.
+Our constants are in this library. We divide the constants into 4 groups. The first group is for pins of the board. The second one has addresses of NVS. The third group has the constants of config portal (sem.local). The last group, which is named others, is for MDNS configuration. This information can be set in "constants.cpp" file. For example the SSID and Password of SEM (configMePlease).
 
 #### gateway.hpp
 #### mode1.hpp
