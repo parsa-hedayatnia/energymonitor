@@ -5,11 +5,11 @@
 #include <WiFiClientSecure.h>
 
 extern HTTPClient  *http;
-extern WiFiClientSecure *https;
+extern WiFiClientSecure clientSecure;
 
 void createClient();
 void setupHttpsClient();
 
 int sendHttpPOSTrequest(WiFiClient client, const char* serverName, String httpRequestData);
-int sendHttpsPOSTrequest(String requestBody, const char* server, String url, String host);
+int sendHttpsPOSTrequest(String body);
 #endif

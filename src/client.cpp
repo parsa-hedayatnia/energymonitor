@@ -1,7 +1,7 @@
 #include "client.hpp"
 #include "constants.hpp"
 
-const char* test_root_ca= \
+const char* ca_cert = \
   "-----BEGIN CERTIFICATE-----\n" \
   "MIIFazCCA1OgAwIBAgIRAIIQz7DSQONZRGPgu2OCiwAwDQYJKoZIhvcNAQELBQAw\n" \
   "TzELMAkGA1UEBhMCVVMxKTAnBgNVBAoTIEludGVybmV0IFNlY3VyaXR5IFJlc2Vh\n" \
@@ -36,6 +36,10 @@ const char* test_root_ca= \
 
 HTTPClient *http;
 
+const char* hostAddr = "5.160.40.125";
+const int port = 443;
+WiFiClientSecure clientSecure;
+
 void createClient() {
   http = new HTTPClient();
 }
@@ -43,8 +47,7 @@ void createClient() {
 int sendHttpPOSTrequest(WiFiClient client, const char* serverName, String httpRequestData)
 {
     http->begin(client, serverName);
-    // http->addHeader("Content-Type", "application/json");
-    http->addHeader("Content-Type", "text/plain");
+    http->addHeader("Content-Type", "application/json");
     int httpResponseCode = http->POST(httpRequestData);
     debugln(httpResponseCode);
     debugln(http->getString());
@@ -54,34 +57,40 @@ int sendHttpPOSTrequest(WiFiClient client, const char* serverName, String httpRe
 
 void setupHttpsClient()
 {
-  https = new WiFiClientSecure();
-  https->setCACert(test_root_ca);
+  clientSecure.setCACert(ca_cert);
+  delay(2000);
 }
 
-int sendHttpsPOSTrequest(String requestBody, const char* server, String url, String host)
+int sendHttpsPOSTrequest(String body)
 {
-  if (!https->connect(server, 443))
-  {
-    Serial.println("Connection failed!");
-    return -1;
-  }
+  int conn = clientSecure.connect(hostAddr, port);
+  if (conn == 1) {
+    int body_len = body.length();
+    Serial.println(); Serial.print("Sending Parameters...");
+    //Request
+    clientSecure.println("POST /post HTTP/1.1");
+    //Headers
+    clientSecure.print("Host: "); clientSecure.println(hostAddr);
+    clientSecure.println("Content-Type: application/json");
+    clientSecure.print("Content-Length: "); clientSecure.println(body_len);
+    clientSecure.println("Connection: Close");
+    clientSecure.println();
+    //Body
+    clientSecure.println(body);
+    clientSecure.println();
 
-  https->print(String("POST ") + url + " HTTP/1.1\r\n" +
-                "Host: " + host + "\r\n" +
-                "Content-Type: application/json\r\n" +
-                "Content-Length: " + requestBody.length() + "\r\n\r\n" +
-                requestBody + "\r\n");
+    //Wait for server response
+    while (clientSecure.available() == 0);
 
-               /* HTTPS read
-                while (client.connected()) {
-                  String line = client.readStringUntil('\n');
-                  if (line == "\r") {
-                    break;
-                  }
-                  Serial.println(line);
-                 }
-
-                  String line = client.readStringUntil('\n');
-               */
-
+    //Print Server Response
+    while (clientSecure.available()) {
+      char c = clientSecure.read();
+      Serial.write(c);
+    }
+   }
+   else{
+      clientSecure.stop();
+      Serial.println("Connection Failed");
+   }
+   delay(5000);
 }
