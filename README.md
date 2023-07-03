@@ -264,7 +264,7 @@ void Mode2_Loop(void)
     debugln("[A]: Start Calculating.");
     calculateANDwritenergy();
     lastMillis = millis();
-    saveToFlash();
+  }
 
   if (millis() - lastMillis2 > 3600000)
    {
