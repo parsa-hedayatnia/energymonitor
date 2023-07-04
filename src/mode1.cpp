@@ -22,10 +22,9 @@ void onData(AsyncWebServerRequest *request)
   doc2["current"] = getCurrent();
   doc2["THDv"] = getThdVoltage();
   doc2["THDi"] = getThdCurrent();
+  doc2["mode"] = "mode1";
+  doc2["macAddress"] = WiFi.macAddress();
   data.add(doc2);
-
-  doc["mode"] = "mode1";
-  doc["mac"] = WiFi.macAddress();
 
   AsyncResponseStream *response = request->beginResponseStream("application/json");
   serializeJson(doc, *response);

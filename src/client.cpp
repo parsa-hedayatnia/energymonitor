@@ -1,59 +1,56 @@
 #include "client.hpp"
 #include "constants.hpp"
 
-const char* ca_cert = \
-  "-----BEGIN CERTIFICATE-----\n" \
-  "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\n" \
-  "-----END CERTIFICATE-----\n"; 
+extern String token;
+
+const char *ca_cert =
+    "-----BEGIN CERTIFICATE-----\n"
+    "MIIDNTCCAh0CFAubIsNyuv42gJlHM7rQyUmNmauVMA0GCSqGSIb3DQEBCwUAMFcx\n"
+    "CzAJBgNVBAYTAklSMRMwEQYDVQQIDApTb21lLVN0YXRlMRAwDgYDVQQHDAdNYXNo\n"
+    "aGFkMSEwHwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwHhcNMjMwNjIz\n"
+    "MTY1NjU4WhcNMjQwNjIyMTY1NjU4WjBXMQswCQYDVQQGEwJJUjETMBEGA1UECAwK\n"
+    "U29tZS1TdGF0ZTEQMA4GA1UEBwwHTWFzaGhhZDEhMB8GA1UECgwYSW50ZXJuZXQg\n"
+    "V2lkZ2l0cyBQdHkgTHRkMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA\n"
+    "lU/24YTABAgFpiVE+4tqakat0OMVCLgUN9794IKBZk3JusrsX4QwjdjhOoqQNPTv\n"
+    "9E42SoaI1Vvf4mPVtj44V5WLgAU2YHwaJzCm7nXvKqjWQ3M5OGYOVPe0FBR5TP80\n"
+    "sqLRD0UbjWncC+tqDnmmrJrdmcjC4NkUNBtfFkrv/5gRRGhqJDvm+yxwN1GwNiP9\n"
+    "HojtV2HsTcBd6W08DtC8p1SfUDZLASBFRUHk40AU6U5rXtgLFQhcX1evIpuMyGQX\n"
+    "OpxHdBJKs6i3LqKL556Qmhf47ONnv1lYfg/rmB5gInbtiJ1ALvJKqUpPzNMu5A8I\n"
+    "T16k7gEIWMSzCwf1VvjrBQIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQBdBt5V4plF\n"
+    "N11I5dR/XQfqRAZBQPtq6hutJwg4pqqjp6cF7DhwOqhoLZe6nHKkRwN37mGKW8AI\n"
+    "BJJgzuksRXmZb8Oy3bL+jAFpiUn/RjjZYY7uCdohSTtQoDQvbRx2K2p1Cugg/XK7\n"
+    "ecnnj1pmCexy5z5H8LEaHJumjvkQ3VF1wQMeoONYltXifiJDMNGkWzvDtGNrHxBz\n"
+    "jFFkFn9/kf0S5f7nA+z+SdxeFVuSW6bXTULybAq0NfBox48Y529+tG+WJHF5aDxv\n"
+    "dFSPhXFsKtSK9ZG6wAMeLh861C2OB+M0XVsE1pujVupHfEm1QcwgYhbn9T+nO9p5\n"
+    "5qNr4uJvhG+c\n"
+    "-----END CERTIFICATE-----";
 
 HTTPClient *http;
 
-const char* hostAddr = "5.160.40.125";
+const char *hostAddr = "5.160.40.125";
 const int port = 443;
 WiFiClientSecure clientSecure;
 
-void createClient() {
+void createClient()
+{
   http = new HTTPClient();
 }
 
-int sendHttpPOSTrequest(const char* url, String httpRequestData)
+int sendHttpPOSTrequest(const char *url, String httpRequestData, bool isAuthorized)
 {
-  // http->begin("http://jsonplaceholder.typicode.com/posts");
-    http->begin(url);
-    http->addHeader("Content-Type", "application/json");
-    int httpResponseCode = http->POST(httpRequestData);
-    debugln(httpResponseCode);
-    debugln(http->getString());
-    http->end();
-    return httpResponseCode;
+  debugln(httpRequestData);
+  http->begin(url);
+  http->addHeader("Content-Type", "application/json");
+  if (isAuthorized)
+  {
+    http->addHeader("Authorization", "Bearer " + token);
+  }
+  int httpResponseCode = http->POST(httpRequestData);
+  debugln(httpResponseCode);
+  debugln(http->getString());
+  http->end();
+
+  return httpResponseCode;
 }
 
 void setupHttpsClient()
@@ -65,33 +62,43 @@ void setupHttpsClient()
 int sendHttpsPOSTrequest(String body)
 {
   int conn = clientSecure.connect(hostAddr, port);
-  if (conn == 1) {
+  if (conn == 1)
+  {
     int body_len = body.length();
-    Serial.println(); Serial.print("Sending Parameters...");
-    //Request
-    clientSecure.println("POST /post HTTP/1.1");
-    //Headers
-    clientSecure.print("Host: "); clientSecure.println(hostAddr);
+    Serial.println();
+    Serial.print("Sending Parameters...");
+    // Request
+    clientSecure.println("POST https://5.160.40.125/api/consumption/mode-4 HTTP/1.1");
+    // Headers
+    clientSecure.print("Host: ");
+    clientSecure.println(hostAddr);
     clientSecure.println("Content-Type: application/json");
-    clientSecure.print("Content-Length: "); clientSecure.println(body_len);
+    clientSecure.print("Content-Length: ");
+    clientSecure.println(body_len);
+    clientSecure.print("Authorization: Bearer ");
+    clientSecure.println(token);
     clientSecure.println("Connection: Close");
     clientSecure.println();
-    //Body
+    // Body
     clientSecure.println(body);
     clientSecure.println();
 
-    //Wait for server response
-    while (clientSecure.available() == 0);
+    // Wait for server response
+    while (clientSecure.available() == 0)
+      ;
 
-    //Print Server Response
-    while (clientSecure.available()) {
+    // Print Server Response
+    while (clientSecure.available())
+    {
       char c = clientSecure.read();
       Serial.write(c);
     }
-   }
-   else{
-      clientSecure.stop();
-      Serial.println("Connection Failed");
-   }
-   delay(5000);
+  }
+  else
+  {
+    clientSecure.stop();
+    Serial.println("Connection Failed");
+  }
+  //  delay(5000);
+  return 0;
 }

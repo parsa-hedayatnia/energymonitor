@@ -1,4 +1,5 @@
 #include "calculate.hpp"
+#include "client.hpp"
 #include "configportal.hpp"
 #include "constants.hpp"
 #include "gateway.hpp"
@@ -6,7 +7,6 @@
 #include "mode2.hpp"
 #include "mode3.hpp"
 #include "server.hpp"
-#include "client.hpp"
 #include <Arduino.h>
 #include <ESPmDNS.h>
 #include <Preferences.h>
@@ -44,6 +44,7 @@ void setup()
 
     debugln(OpModeNames[selectedMode] + " Was Selected.");
     debugln("SSID: " + ssid + " | Password: " + password);
+    debugln(WiFi.macAddress());
 
     if (selectedMode != GATEWAY)
     {
@@ -79,7 +80,8 @@ void setup()
     {
       createServer();
     }
-    else if(selectedMode == MODE3)
+
+    if (selectedMode == MODE3 || selectedMode == GATEWAY)
     {
       createClient();
     }

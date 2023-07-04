@@ -42,7 +42,7 @@ ConfigPortalParameters startConfigPoral()
 
   debugln("Setting up access point");
   WiFi.mode(WIFI_AP);
-  WiFi.softAP(Constants::ConfigStationSSID, Constants::ConfigStationPassword);
+  WiFi.softAP(Constants::ConfigStationSSID + String(WiFi.macAddress()), Constants::ConfigStationPassword);
 
   if (MDNS.begin(Constants::ConfigPortalAddress))
   {

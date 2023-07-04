@@ -15,22 +15,18 @@
 void sendDataToGW()
 {
   DynamicJsonDocument doc(1024);
-  JsonArray data = doc.createNestedArray("data");
-  StaticJsonDocument<192> doc2;
-  doc2["consumption"] = getEnergy();
-  doc2["voltage"] = getVoltage();
-  doc2["current"] = getCurrent();
-  doc2["THDv"] = getThdVoltage();
-  doc2["THDi"] = getThdCurrent();
-  data.add(doc2);
-
-  doc["mode"] = "mode1";
-  doc["mac"] = WiFi.macAddress();
+  doc["consumption"] = getEnergy();
+  doc["voltage"] = getVoltage();
+  doc["current"] = getCurrent();
+  doc["THDv"] = getThdVoltage();
+  doc["THDi"] = getThdCurrent();
+  doc["mode"] = "mode3";
+  doc["macAddress"] = WiFi.macAddress();
 
   String output;
   serializeJson(doc, output);
   // send http post req
-  sendHttpPOSTrequest("http://gateway.local", output);
+  sendHttpPOSTrequest("http://gateway.local/publish", output, false);
 }
 
 void Mode3_Init(void)

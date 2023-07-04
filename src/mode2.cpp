@@ -7,8 +7,8 @@
 #include <ESP32TimerInterrupt.hpp>
 #include <ESPAsyncWebServer.h>
 #include <Preferences.h>
-#include <sqlite3.h>
 #include <SPIFFS.h>
+#include <sqlite3.h>
 
 #define SAMPLE_PERIOD 5000
 
@@ -212,20 +212,17 @@ void mode2OnData(AsyncWebServerRequest *request)
     doc2["consumption"] = tmpEnergy[i];
     doc2["voltage"] = tmpVoltage[i];
     doc2["current"] = tmpCurrent[i];
-    // doc2["pf"] = tmpPf[i];
     doc2["THDv"] = tmpThdVoltage[i];
     doc2["THDi"] = tmpThdCurrent[i];
+    doc2["mode"] = "mode2";
+    doc2["macAddress"] = WiFi.macAddress();
     data.add(doc2);
   }
-
-  doc["mode"] = "mode2";
-  doc["mac"] = WiFi.macAddress();
 
   AsyncResponseStream *response = request->beginResponseStream("application/json");
   serializeJson(doc, *response);
   // serializeJsonPretty(doc, Serial);
   request->send(response);
-
 
   // sprintf(tmpstr, "DELETE FROM test1 WHERE rowid IN (SELECT rowid FROM test1 ORDER BY rowid ASC LIMIT 100);"); // WHERE rowid=%ld;", sqlite3_last_insert_rowid(db1));
   // rc = db_exec(db1, tmpstr);
@@ -267,7 +264,6 @@ void Mode2_Loop(void)
 
   static unsigned long lastMillis = 0, lastMillis2 = 0, lastMillis3 = 0, lastMillis4 = 0;
 
- 
   if (millis() - lastMillis > SAMPLE_PERIOD)
   {
     debugln("[A]: Start Calculating.");

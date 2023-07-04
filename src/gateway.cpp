@@ -16,19 +16,22 @@ int pckt_cnt=0;
 #define sendInterval 10000
 int lastSend=0;
 
-String *nodes_data;
-String sendData="";
+String nodes_data[100];
+StaticJsonDocument<512> docs[60];
 
 void action(AsyncWebServerRequest * request, uint8_t *data, size_t len, size_t index, size_t total) {
-  debugln(String((char*) data));
+  debugln("post received");
+  // debugln(String((char*) data));
   // NVS.putString(addrSP_ApiToken ,SM_ApiToken);
   request->send(200);
-  nodes_data[pckt_cnt++] = String((char*) data);
+  String temp = String((char*) data);
+  deserializeJson(docs[pckt_cnt], temp);
+  pckt_cnt++;
 }
 
 void Gateway_Init(void)
 {   
-    nodes_data = new String[100];
+    // nodes_data = new String[100];
     server->on(
               "/publish",
               HTTP_POST,
@@ -42,15 +45,22 @@ void Gateway_Init(void)
 
 void Gateway_Loop(void)
 {
-  if(pckt_cnt>=50||(millis()-lastSend>=sendInterval))
+  if((pckt_cnt>=50||(millis()-lastSend>=sendInterval)) && pckt_cnt > 0)
   {
-    sendData="{\"data\":[";
-    for(int i=0;i<pckt_cnt-1;i++)
+    debugln("sending to server");
+    // String sendData="{\"data\":[";
+    DynamicJsonDocument doc(30 * 1024);
+    JsonArray data = doc.createNestedArray("data");
+    for(int i=0;i<pckt_cnt;i++)
     {
-      sendData = sendData + nodes_data[i] + ",";
+      // sendData = sendData + nodes_data[i] + ",";
+      data.add(docs[i]);
     }
-    sendData = sendData + nodes_data[pckt_cnt-1] + "]}";
-    sendHttpsPOSTrequest(sendData);
+    // sendData = sendData + nodes_data[pckt_cnt-1] + "]}";
+    // sendHttpsPOSTrequest(sendData);
+    String sendData;
+    serializeJson(doc, sendData);
+    sendHttpPOSTrequest("http://5.160.40.125:8080/consumption/mode-4", sendData, true);
     pckt_cnt = 0;
     lastSend = millis();
   }
