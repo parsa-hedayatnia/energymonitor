@@ -6,6 +6,7 @@
 * [Mode1](#Mode1)
 * [Mode2](#Mode2)
 * [Mode3](#Mode3)
+* [Gateway](#Gateway)
 
 
 ## Introduction
@@ -312,3 +313,63 @@ void Mode3_Loop(void)
 ```
 Functionality of "sendDataToGW()" is like the onData() method in mode 1,2. But here we don’t need any endpoint or any request for sending that json. However in this method the json file is created every time we call the function (every 5s in "Mode3_Loop()") and then it serializes the Json file and sends it to the gateway by a POST method.
 The Json file contains some information about the energy which is filled by the functions of headers.
+
+
+## Gateway
+The last mode is gateway mode. SEM device is a gateway here. First of all we should implement some libraries which are defined in [Includes](#Includes).
+```cpp
+void action(AsyncWebServerRequest * request, uint8_t *data, size_t len, size_t index, size_t total) {
+  debugln("post received");
+  // debugln(String((char*) data));
+  // NVS.putString(addrSP_ApiToken ,SM_ApiToken);
+  request->send(200);
+  String temp = String((char*) data);
+  deserializeJson(docs[pckt_cnt], temp);
+  pckt_cnt++;
+}
+```
+This function receives data which are sent from nodes(mode3). After receiving successfully and sending the 200 ok response, it collects and locates them in a buffer (“docs”).
+
+```cpp
+void Gateway_Init(void)
+{   
+    // nodes_data = new String[100];
+    server->on(
+              "/publish",
+              HTTP_POST,
+              [](AsyncWebServerRequest * request){},
+              NULL,
+              action);
+  server->begin();
+
+  setupHttpsClient();
+}
+```
+Like init methods in all other modes, it creates an endpoint for its own functionality. Here the endpoint for gateway is “/publish”
+
+```cpp
+void Gateway_Loop(void)
+{
+  if((pckt_cnt>=50||(millis()-lastSend>=sendInterval)) && pckt_cnt > 0)
+  {
+    debugln("sending to server");
+    // String sendData="{\"data\":[";
+    DynamicJsonDocument doc(30 * 1024);
+    JsonArray data = doc.createNestedArray("data");
+    for(int i=0;i<pckt_cnt;i++)
+    {
+      // sendData = sendData + nodes_data[i] + ",";
+      data.add(docs[i]);
+    }
+    // sendData = sendData + nodes_data[pckt_cnt-1] + "]}";
+    // sendHttpsPOSTrequest(sendData);
+    String sendData;
+    serializeJson(doc, sendData);
+    sendHttpPOSTrequest("http://5.160.40.125:8080/consumption/mode-4", sendData, true);
+    pckt_cnt = 0;
+    lastSend = millis();
+  }
+  delay(1000);
+}
+```
+In this function all data in the buffer(“docs”) is going to be read. There is a condition at the beginning of the loop. It's for checking the buffer and reading them either every time its timeout ends or every time the buffer reaches 50 packets. Then the packets (data) in the buffer will be serialized and sent to the server.
