@@ -294,7 +294,6 @@ void sendDataToGW()
 
   String output;
   serializeJson(doc, output);
-  // send http post req
   sendHttpPOSTrequest("http://gateway.local/publish", output, false);
 }
 
@@ -320,8 +319,6 @@ The last mode is gateway mode. SEM device is a gateway here. First of all we sho
 ```cpp
 void action(AsyncWebServerRequest * request, uint8_t *data, size_t len, size_t index, size_t total) {
   debugln("post received");
-  // debugln(String((char*) data));
-  // NVS.putString(addrSP_ApiToken ,SM_ApiToken);
   request->send(200);
   String temp = String((char*) data);
   deserializeJson(docs[pckt_cnt], temp);
@@ -333,7 +330,6 @@ This function receives data which are sent from nodes(mode3). After receiving su
 ```cpp
 void Gateway_Init(void)
 {   
-    // nodes_data = new String[100];
     server->on(
               "/publish",
               HTTP_POST,
@@ -353,16 +349,12 @@ void Gateway_Loop(void)
   if((pckt_cnt>=50||(millis()-lastSend>=sendInterval)) && pckt_cnt > 0)
   {
     debugln("sending to server");
-    // String sendData="{\"data\":[";
     DynamicJsonDocument doc(30 * 1024);
     JsonArray data = doc.createNestedArray("data");
     for(int i=0;i<pckt_cnt;i++)
     {
-      // sendData = sendData + nodes_data[i] + ",";
       data.add(docs[i]);
     }
-    // sendData = sendData + nodes_data[pckt_cnt-1] + "]}";
-    // sendHttpsPOSTrequest(sendData);
     String sendData;
     serializeJson(doc, sendData);
     sendHttpPOSTrequest("http://5.160.40.125:8080/consumption/mode-4", sendData, true);
