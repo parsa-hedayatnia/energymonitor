@@ -5,6 +5,7 @@
 * [Includes](#Includes)
 * [Mode1](#Mode1)
 * [Mode2](#Mode2)
+* [Mode3](#Mode3)
 
 
 ## Introduction
@@ -274,3 +275,40 @@ void Mode2_Loop(void)
 }
 ```
 Each hour, saves data on the database by calling saveToFlash() function.
+
+## Mode3
+In the third mode your device works as a node and sends data the the gateway.
+First of all we should implement some libraries which are defined in [Includes](#Includes)
+```cpp
+void sendDataToGW()
+{
+  DynamicJsonDocument doc(1024);
+  doc["consumption"] = getEnergy();
+  doc["voltage"] = getVoltage();
+  doc["current"] = getCurrent();
+  doc["THDv"] = getThdVoltage();
+  doc["THDi"] = getThdCurrent();
+  doc["mode"] = "mode3";
+  doc["macAddress"] = WiFi.macAddress();
+
+  String output;
+  serializeJson(doc, output);
+  // send http post req
+  sendHttpPOSTrequest("http://gateway.local/publish", output, false);
+}
+
+void Mode3_Init(void)
+{
+    createClient();
+}
+
+void Mode3_Loop(void)
+{
+  delay(SAMPLE_PERIOD);
+  debugln("[A]: Start Calculating.");
+  calculateANDwritenergy();
+  sendDataToGW();
+}
+```
+Functionality of "sendDataToGW()" is like the onData() method in mode 1,2. But here we don’t need any endpoint or any request for sending that json. However in this method the json file is created every time we call the function (every 5s in "Mode3_Loop()") and then it serializes the Json file and sends it to the gateway by a POST method.
+The Json file contains some information about the energy which is filled by the functions of headers.
