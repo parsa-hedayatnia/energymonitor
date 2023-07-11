@@ -5,6 +5,8 @@
 * [Includes](#Includes)
 * [Mode1](#Mode1)
 * [Mode2](#Mode2)
+* [Mode3](#Mode3)
+* [Gateway](#Gateway)
 
 
 ## Introduction
@@ -274,3 +276,92 @@ void Mode2_Loop(void)
 }
 ```
 Each hour, saves data on the database by calling saveToFlash() function.
+
+## Mode3
+In the third mode your device works as a node and sends data the the gateway.
+First of all we should implement some libraries which are defined in [Includes](#Includes)
+```cpp
+void sendDataToGW()
+{
+  DynamicJsonDocument doc(1024);
+  doc["consumption"] = getEnergy();
+  doc["voltage"] = getVoltage();
+  doc["current"] = getCurrent();
+  doc["THDv"] = getThdVoltage();
+  doc["THDi"] = getThdCurrent();
+  doc["mode"] = "mode3";
+  doc["macAddress"] = WiFi.macAddress();
+
+  String output;
+  serializeJson(doc, output);
+  sendHttpPOSTrequest("http://gateway.local/publish", output, false);
+}
+
+void Mode3_Init(void)
+{
+    createClient();
+}
+
+void Mode3_Loop(void)
+{
+  delay(SAMPLE_PERIOD);
+  debugln("[A]: Start Calculating.");
+  calculateANDwritenergy();
+  sendDataToGW();
+}
+```
+Functionality of "sendDataToGW()" is like the onData() method in mode 1,2. But here we don’t need any endpoint or any request for sending that json. However in this method the json file is created every time we call the function (every 5s in "Mode3_Loop()") and then it serializes the Json file and sends it to the gateway by a POST method.
+The Json file contains some information about the energy which is filled by the functions of headers.
+
+
+## Gateway
+The last mode is gateway mode. SEM device is a gateway here. First of all we should implement some libraries which are defined in [Includes](#Includes).
+```cpp
+void action(AsyncWebServerRequest * request, uint8_t *data, size_t len, size_t index, size_t total) {
+  debugln("post received");
+  request->send(200);
+  String temp = String((char*) data);
+  deserializeJson(docs[pckt_cnt], temp);
+  pckt_cnt++;
+}
+```
+This function receives data which are sent from nodes(mode3). After receiving successfully and sending the 200 ok response, it collects and locates them in a buffer (“docs”).
+
+```cpp
+void Gateway_Init(void)
+{   
+    server->on(
+              "/publish",
+              HTTP_POST,
+              [](AsyncWebServerRequest * request){},
+              NULL,
+              action);
+  server->begin();
+
+  setupHttpsClient();
+}
+```
+Like init methods in all other modes, it creates an endpoint for its own functionality. Here the endpoint for gateway is “/publish”
+
+```cpp
+void Gateway_Loop(void)
+{
+  if((pckt_cnt>=50||(millis()-lastSend>=sendInterval)) && pckt_cnt > 0)
+  {
+    debugln("sending to server");
+    DynamicJsonDocument doc(30 * 1024);
+    JsonArray data = doc.createNestedArray("data");
+    for(int i=0;i<pckt_cnt;i++)
+    {
+      data.add(docs[i]);
+    }
+    String sendData;
+    serializeJson(doc, sendData);
+    sendHttpPOSTrequest("http://5.160.40.125:8080/consumption/mode-4", sendData, true);
+    pckt_cnt = 0;
+    lastSend = millis();
+  }
+  delay(1000);
+}
+```
+In this function all data in the buffer(“docs”) is going to be read. There is a condition at the beginning of the loop. It's for checking the buffer and reading them either every time its timeout ends or every time the buffer reaches 50 packets. Then the packets (data) in the buffer will be serialized and sent to the server.
