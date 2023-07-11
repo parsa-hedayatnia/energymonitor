@@ -6,7 +6,6 @@
 struct ConfigPortalParameters
 {
   int operationMode;
-  bool isAP;
   String ssid;
   String password;
   String token;

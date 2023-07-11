@@ -1,14 +1,14 @@
 #include "mode3.hpp"
-#include "client.hpp"
-#include <Arduino.h>
-#include "constants.hpp"
 #include "calculate.hpp"
+#include "client.hpp"
+#include "constants.hpp"
+#include <Arduino.h>
 #include <ArduinoJson.h>
 #include <ESP32TimerInterrupt.hpp>
 #include <ESPAsyncWebServer.h>
 #include <Preferences.h>
-#include <sqlite3.h>
 #include <SPIFFS.h>
+#include <sqlite3.h>
 
 #define SAMPLE_PERIOD 5000
 
@@ -21,7 +21,9 @@ void sendDataToGW()
   doc["THDv"] = getThdVoltage();
   doc["THDi"] = getThdCurrent();
   doc["mode"] = "mode3";
-  doc["macAddress"] = WiFi.macAddress();
+  String mac = WiFi.macAddress();
+  mac.toLowerCase();
+  doc["macAddress"] = mac;
 
   String output;
   serializeJson(doc, output);
@@ -31,13 +33,25 @@ void sendDataToGW()
 
 void Mode3_Init(void)
 {
-    createClient();
+  createClient();
 }
 
 void Mode3_Loop(void)
 {
-  delay(SAMPLE_PERIOD);
-  debugln("[A]: Start Calculating.");
-  calculateANDwritenergy();
-  sendDataToGW();
+  static unsigned long lastMillis = 0, lastMillis2 = 0, lastMillis3 = 0, lastMillis4 = 0;
+
+  if (millis() - lastMillis > SAMPLE_PERIOD)
+  {
+    debugln("[A]: Start Calculating.");
+    calculateANDwritenergy();
+    lastMillis = millis();
+    // saveToFlash();
+  }
+  // save to flash
+
+  if (millis() - lastMillis2 > 3600000)
+  {
+    sendDataToGW();
+    lastMillis2 = millis();
+  }
 }

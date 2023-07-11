@@ -37,7 +37,6 @@ namespace Constants
   extern const char *WifiSSIDAddress;
   extern const char *WifiPasswordAddress;
   extern const char *SelectedBoardAddress;
-  extern const char *IsAPAddress;
   extern const char *TokenAddress;
 
   // Config Portal

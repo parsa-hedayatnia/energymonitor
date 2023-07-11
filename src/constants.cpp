@@ -33,7 +33,6 @@ namespace Constants
   const char *WifiSSIDAddress = "WifiSSID";
   const char *WifiPasswordAddress = "WifiPassword";
   const char *SelectedBoardAddress = "SelectedBoard";
-  const char *IsAPAddress = "IsAP";
   const char *TokenAddress = "Token";
 
   // Config Portal

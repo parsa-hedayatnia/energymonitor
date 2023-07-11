@@ -25,7 +25,7 @@ void onWifiButtonInterrupt(void)
 
 void setup()
 {
-  debug_begin(115200);
+  Serial.begin(115200);
 
   NVS.begin("SM1001", false);
 
@@ -37,7 +37,6 @@ void setup()
   if (NVS.isKey(Constants::SelectedBoardAddress))
   {
     selectedMode = (OpMode)NVS.getInt(Constants::SelectedBoardAddress);
-    bool isAP = NVS.getBool(Constants::IsAPAddress);
     String ssid = NVS.getString(Constants::WifiSSIDAddress);
     String password = NVS.getString(Constants::WifiPasswordAddress);
     token = NVS.getString(Constants::TokenAddress);
@@ -52,23 +51,39 @@ void setup()
       pinMode(Constants::VoltagePin, INPUT);
     }
 
-    if (isAP)
+    if (selectedMode == MODE1 || selectedMode == MODE2)
     {
       WiFi.mode(WIFI_AP);
       WiFi.softAP(ssid, password);
     }
-    else
+    else if (selectedMode == MODE3)
     {
       WiFi.mode(WIFI_STA);
+      WiFi.begin("SEMGW", "11223344");
+
+      int i = 0;
+      while (WiFi.status() != WL_CONNECTED)
+      {
+        delay(1000);
+        debug(++i);
+        debug(' ');
+      }
+    }
+    else
+    {
+      WiFi.mode(WIFI_AP_STA);
+      WiFi.softAP("SEMGW", "11223344");
       WiFi.begin(ssid.c_str(), password.c_str());
 
       int i = 0;
       while (WiFi.status() != WL_CONNECTED)
       {
         delay(1000);
-        Serial.print(++i);
-        Serial.print(' ');
+        debug(++i);
+        debug(' ');
       }
+
+      debugln(WiFi.localIP());
     }
 
     if (MDNS.begin(selectedMode == GATEWAY ? Constants::GatewayMDNSAddress : Constants::MDNSAddress))
@@ -112,7 +127,6 @@ void setup()
   debugln("Operation Mode: " + OpModeNames[params.operationMode]);
 
   NVS.putInt(Constants::SelectedBoardAddress, params.operationMode);
-  NVS.putBool(Constants::IsAPAddress, params.isAP);
   NVS.putString(Constants::WifiSSIDAddress, params.ssid);
   NVS.putString(Constants::WifiPasswordAddress, params.password);
   NVS.putString(Constants::TokenAddress, params.token);

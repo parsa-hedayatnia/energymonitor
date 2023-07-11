@@ -215,7 +215,9 @@ void mode2OnData(AsyncWebServerRequest *request)
     doc2["THDv"] = tmpThdVoltage[i];
     doc2["THDi"] = tmpThdCurrent[i];
     doc2["mode"] = "mode2";
-    doc2["macAddress"] = WiFi.macAddress();
+    String mac = WiFi.macAddress();
+    mac.toLowerCase();
+    doc2["macAddress"] = mac;
     data.add(doc2);
   }
 
@@ -269,13 +271,13 @@ void Mode2_Loop(void)
     debugln("[A]: Start Calculating.");
     calculateANDwritenergy();
     lastMillis = millis();
-    saveToFlash();
+    // saveToFlash();
   }
   // save to flash
 
-  // if (millis() - lastMillis2 > 3600000)
-  // {
-  //   saveToFlash();
-  //   lastMillis2 = millis();
-  // }
+  if (millis() - lastMillis2 > 3600000)
+  {
+    saveToFlash();
+    lastMillis2 = millis();
+  }
 }

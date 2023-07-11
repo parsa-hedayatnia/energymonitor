@@ -23,7 +23,9 @@ void onData(AsyncWebServerRequest *request)
   doc2["THDv"] = getThdVoltage();
   doc2["THDi"] = getThdCurrent();
   doc2["mode"] = "mode1";
-  doc2["macAddress"] = WiFi.macAddress();
+  String mac = WiFi.macAddress();
+  mac.toLowerCase();
+  doc2["macAddress"] = mac;
   data.add(doc2);
 
   AsyncResponseStream *response = request->beginResponseStream("application/json");

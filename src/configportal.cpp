@@ -24,7 +24,6 @@ void onSetSettings(AsyncWebServerRequest *request)
   }
 
   parameters.operationMode = request->getParam("selectedMode")->value().toInt();
-  parameters.isAP = parameters.operationMode == MODE1 || parameters.operationMode == MODE2;
   parameters.ssid = request->getParam("ssid")->value();
   parameters.password = request->getParam("password")->value();
   parameters.token = request->getParam("token")->value();
