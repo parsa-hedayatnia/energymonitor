@@ -16,12 +16,12 @@ The part that is implemented in this repository is 4 different modes of this pro
 ## Getting-Started
 First of you have to connect device into urban electrisity.
 
-![Connect-to-E](/Screenshots/Connect-to-E.png)
+![Connect-to-E](./Screenshots/Connect-to-E.png)
 
 
-Then go to Wifi setting of your phone or computer. Connect to <ConfigMePlease>
+Then go to Wifi setting of your phone or computer. Connect to <CPonfigMePlease>
 
-![Connect-to-SSID](/Screenshots/Connect-to-Ssid.PNG)
+![Connect-to-SSID](./Screenshots/Connect-to-Ssid.PNG)
 
 Go to your browser and enter <sem.local>
 The page containes 3 modes plus 1 gateway mode.
@@ -31,23 +31,23 @@ In mode 1 its aggregate energy, but in mode 2 the data is per hour.
 In order to work in these modes you have to enter SSID and Password which you want to use for your device. 
 In mode 1,2 you device works as an Access Point.
 
-![Mode1,2](/Screenshots/Mode1,2.PNG) 
+![Mode1,2](./Screenshots/Mode1,2.PNG) 
 
 ### Mode 3
 In the third mode your device works as a node. It should be connected into a SSID and use it as a gateway. So you should enter SSID and Password of a router or external network.
 
-![Mode3](/Screenshots/Mode3.PNG)
+![Mode3](./Screenshots/Mode3.PNG)
 
 ### Mode 4(Gateway)
 The last mode is gateway mode. SEM device is a gateway here. So you should enter SSID and Password of a router or external network.
 Here you should enter the token which MobileApp or website gives to you. The network which you connect to, should be the one in mode 3
 
-![Mode4](/Screenshots/Mode4.PNG)
+![Mode4](./Screenshots/Mode4.PNG)
 
 
 ## Includes
 
-![includes](/Screenshots/includes.png)
+![includes](./Screenshots/includes.png)
 #### calculate.hpp
 As it can be understood by its name, this library helps us for our calculations. The functions are based on the official library of Arduino. 
 
